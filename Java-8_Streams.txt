@@ -109,4 +109,49 @@ Common Use Cases
 - Grouping & Partitioning
 - IO & File Processing
 
-Note: Explore Collectors, StreamSupport, and advanced stream manipulation for more powerful use cases.
+
+--------------------------------------------------
+What is boxed()?
+--------------------------------------------------
+- The boxed() method is used in Java 8 Streams to convert a primitive stream (IntStream, LongStream, DoubleStream)
+  into a Stream of their corresponding wrapper classes (Stream<Integer>, Stream<Long>, Stream<Double>).
+- This is necessary when you want to use stream collectors like Collectors.toList() which operate on object streams.
+
+--------------------------------------------------
+Why use boxed()?
+--------------------------------------------------
+- Primitive streams like IntStream, LongStream, and DoubleStream do not support collectors like Collectors.toList() directly.
+- boxed() wraps the primitive values into their object counterparts so they can be collected into collections like List, Set, etc.
+
+--------------------------------------------------
+Example
+--------------------------------------------------
+int[] arr = {1, 2, 3};
+
+// Incorrect: Compilation error
+// List<Integer> list = Arrays.stream(arr).collect(Collectors.toList());
+
+// Correct: Use boxed() to convert IntStream to Stream<Integer>
+List<Integer> list = Arrays.stream(arr)
+                           .boxed()
+                           .collect(Collectors.toList());
+
+--------------------------------------------------
+When to use boxed()
+--------------------------------------------------
+- Whenever you're working with primitive streams and need to:
+  - Collect values into a collection like List, Set, etc.
+  - Use intermediate/terminal operations that expect object streams
+
+--------------------------------------------------
+Conversions Summary
+--------------------------------------------------
+IntStream    -> boxed() -> Stream<Integer>
+LongStream   -> boxed() -> Stream<Long>
+DoubleStream -> boxed() -> Stream<Double>
+
+--------------------------------------------------
+Note
+--------------------------------------------------
+- boxed() performs boxing (primitive to wrapper) which may have a slight performance cost.
+- Prefer primitive streams for performance-sensitive operations unless object-based operations are necessary.
