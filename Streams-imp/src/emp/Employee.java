@@ -2,6 +2,7 @@ package emp;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Employee {
     private int id;
@@ -263,12 +264,98 @@ public class Employee {
 
 
         // 21.Print average and total salary of the organization
-        LongSummaryStatistics empSalary= empList.stream().collect(Collectors.summarizingLong(Employee::getSalary));
+        LongSummaryStatistics empSalary = empList.stream().collect(Collectors.summarizingLong(Employee::getSalary));
 
-        System.out.println("Average salary of an employee "+empSalary.getAverage());
-        System.out.println("Total salary of an employee "+empSalary.getSum());
+        System.out.println("Average salary of an employee " + empSalary.getAverage());
+        System.out.println("Total salary of an employee " + empSalary.getSum());
+
+        // 22.Print Average salary of each department
+
+        System.out.println("Average salary of each department");
+        empList.stream().collect(Collectors.groupingBy(Employee::getDeptName, Collectors.averagingDouble(Employee::getSalary)))
+                .entrySet()
+                .stream()
+                .forEach(x -> System.out.println(x.getKey() + " : " + x.getValue()));
+
+        //23.Find Highest salary in the organisation
+        Optional<Employee> maxSal = empList.stream().max(Comparator.comparing(Employee::getSalary));
+        System.out.println("Max sal of Emp is " + maxSal.get());
+
+        Optional<Employee> highestSal = empList.stream()
+                .sorted(Comparator.comparingDouble(Employee::getSalary)
+                        .reversed())
+                .findFirst();
+        System.out.println("Highest Sal of Employee is : " + highestExp.get().getSalary() + " : " + highestSal.get().getName());
 
 
+        //24.Find Second Highest salary in the organisation
 
+        Optional<Employee> secondHighestSal = empList.stream()
+                .sorted(Comparator.comparingDouble(Employee::getSalary)
+                        .reversed())
+                .skip(1)
+                .findFirst();
+        System.out.println("Second Highest Sal of Employee is : " + secondHighestSal.get().getSalary() + " : " + secondHighestSal.get().getName());
+
+        //25. Nth Highest salary
+
+        int n = 3;
+        Optional<Employee> NthHighestSal = empList.stream()
+                .sorted(Comparator.comparingDouble(Employee::getSalary)
+                        .reversed())
+                .skip(n - 1)
+                .findFirst();
+        System.out.println("Nth Highest Sal of Employee is : " + NthHighestSal.get().getSalary() + " : " + NthHighestSal.get().getName());
+
+
+        //26.Find highest paid salary in the organisation based on gender
+        Map<String, Optional<Employee>> highestpaidEmployee = empList.stream()
+                .collect(Collectors.groupingBy(Employee::getGender, Collectors.maxBy((t1, t2) -> (int) (t1.getSalary() - t2.getSalary()))));
+        System.out.println("Highest paid male and female employee : \n" + highestpaidEmployee);
+
+        //27.Find lowest paid salary in the organisation based in the organisation
+        Map<String, Optional<Employee>> lowestpaidEmployee = empList.stream()
+                .collect(Collectors.groupingBy(Employee::getGender, Collectors.maxBy((t1, t2) -> (int) (t1.getSalary() - t2.getSalary()))));
+        System.out.println("Highest paid male and female employee : \n" + lowestpaidEmployee);
+
+        //28.Sort the employees salary in the organisation in ascending order
+        List<Employee> ascList = empList.stream().sorted(Comparator.comparingLong(Employee::getSalary)).toList();
+        System.out.println("Emp sal in ascending order is : \n" + ascList);
+
+        //29. Sort the employees salary in the organisation in descending order
+        List<Employee> dscList = empList.stream().sorted(Comparator.comparingLong(Employee::getSalary).reversed()).toList();
+        System.out.println("Emp sal in descending order is : \n" + dscList);
+
+        //30.Highest salary based on department
+        System.out.println("Highest salary based on department " + empList.stream()
+                .collect(Collectors.groupingBy(Employee::getDeptName,
+                        Collectors.collectingAndThen(Collectors.toList(), list -> list.stream().max(Comparator.comparingDouble(Employee::getSalary))))));
+
+        //31.Print list of employee’s second highest record based on department
+        System.out.println("Second Highest salary based on department " + empList.stream()
+                .collect(Collectors.groupingBy(Employee::getDeptName,
+                        Collectors.collectingAndThen(Collectors.toList(), list -> list.stream().sorted(Comparator.comparingDouble(Employee::getSalary)).skip(1).findFirst()))));
+
+        //32.Sort the employees salary in each department in ascending order
+        System.out.println("Emp salary based on department in ascending ");
+        Map<String, Stream<Employee>> sortedEmpinAsc = empList.stream()
+                .collect(Collectors.groupingBy(Employee::getDeptName,
+                        Collectors.collectingAndThen(Collectors.toList(), list -> list.stream().sorted(Comparator.comparingDouble(Employee::getSalary)))));
+        sortedEmpinAsc.forEach((u, v) -> {
+            System.out.println(u);
+            System.out.println(v.collect(Collectors.toList()));
+        });
+
+        //33.Sort the employees salary in each department in descending order
+
+        System.out.println("Emp salary based on department in descending ");
+        Map<String, Stream<Employee>> sortedEmpindsc = empList.stream()
+                .collect(Collectors.groupingBy(Employee::getDeptName,
+                        Collectors.collectingAndThen(Collectors.toList(), list -> list.stream().sorted(Comparator.comparingDouble(Employee::getSalary).reversed()))));
+        sortedEmpindsc.forEach((u, v) -> {
+            System.out.println(u);
+            System.out.println(v.collect(Collectors.toList()));
+
+        });
     }
 }
