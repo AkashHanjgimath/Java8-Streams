@@ -155,3 +155,345 @@ Note
 --------------------------------------------------
 - boxed() performs boxing (primitive to wrapper) which may have a slight performance cost.
 - Prefer primitive streams for performance-sensitive operations unless object-based operations are necessary.
+
+
+
+--------------------------------------------------
+What is flatMap()?
+--------------------------------------------------
+- The flatMap() operation first applies a mapping function to each element of the stream,
+  resulting in a stream of streams.
+- It then flattens these nested streams into a single continuous stream of elements.
+- Use flatMap() when dealing with nested structures or when the mapping function returns a stream.
+
+--------------------------------------------------
+Use Case Example
+--------------------------------------------------
+public static void main(String[] args) {
+    ListData.listLoader().stream()
+        .map(User::getfName)           // Transforms each User object into its first name (String)
+        .flatMap(Stream::of)           // Wraps each String into a Stream and flattens into a single Stream
+        .forEach(System.out::println); // Prints each first name
+}
+
+--------------------------------------------------
+Explanation
+--------------------------------------------------
+- map(User::getfName): Converts each User object into its first name.
+- flatMap(Stream::of): Wraps each first name into a Stream and then flattens all into one Stream.
+- forEach(...): Processes each element in the flattened stream.
+
+--------------------------------------------------
+When to use flatMap()
+--------------------------------------------------
+- You have a stream of collections or nested structures.
+- You want to transform each element into multiple elements (e.g., a list of lists to a single list).
+- You need to "flatten" nested streams into a single continuous stream.
+
+--------------------------------------------------
+Note
+--------------------------------------------------
+- In simple transformations (like extracting a single property), flatMap() is not always necessary.
+- map() is usually sufficient unless your mapping function returns a Stream or Collection.
+
+--------------------------------------------------
+Other Examples
+--------------------------------------------------
+List<List<String>> data = Arrays.asList(
+    Arrays.asList("a", "b"),
+    Arrays.asList("c", "d")
+);
+
+data.stream()
+    .flatMap(Collection::stream)       // Flattens List<List<String>> to Stream<String>
+    .forEach(System.out::println);
+
+
+
+**--map() vs flatMap()--**
+
+--------------------------------------------------
+Overview
+--------------------------------------------------
+In Java, map() and flatMap() are both methods used to transform elements in a stream.
+They serve different purposes and are used in different scenarios.
+
+--------------------------------------------------
+map()
+--------------------------------------------------
+- Applies a function to each element of the stream.
+- Returns a stream consisting of the results of applying the function.
+- Each element in the original stream is transformed into a single new element.
+
+Example:
+List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5);
+List<Integer> squares = numbers.stream()
+                               .map(n -> n * n)
+                               .collect(Collectors.toList());
+System.out.println(squares); // Output: [1, 4, 9, 16, 25]
+
+--------------------------------------------------
+flatMap()
+--------------------------------------------------
+- Applies a function to each element that returns a stream.
+- Flattens all resulting streams into a single stream.
+- Useful when each element can be transformed into multiple elements.
+
+Example:
+List<List<Integer>> listOfLists = Arrays.asList(
+    Arrays.asList(1, 2),
+    Arrays.asList(3, 4)
+);
+
+List<Integer> flattenedList = listOfLists.stream()
+                                         .flatMap(list -> list.stream())
+                                         .collect(Collectors.toList());
+System.out.println(flattenedList); // Output: [1, 2, 3, 4]
+
+--------------------------------------------------
+Key Differences
+--------------------------------------------------
+| Feature       | map()                          | flatMap()                       |
+|---------------|--------------------------------|---------------------------------|
+| Output        | Stream<T>                      | Stream<T> (flattened)           |
+| Use Case      | One-to-one transformation      | One-to-many transformation      |
+| Example       | Square numbers                 | Flatten nested lists            |
+
+--------------------------------------------------
+When to Use
+--------------------------------------------------
+- Use map() when each input element maps to a single output element.
+- Use flatMap() when each input element maps to multiple output elements (e.g., nested collections).
+
+
+Java Stream API - Parallel Streams Notes
+
+--------------------------------------------------
+Overview
+--------------------------------------------------
+- Parallel streams enable multi-threaded processing of data.
+- They split the source data and process elements in parallel using the ForkJoinPool.
+- Suitable for CPU-intensive operations on large datasets in multi-core systems.
+
+--------------------------------------------------
+How to Use
+--------------------------------------------------
+- Replace `.stream()` with `.parallelStream()` or call `.parallel()` on an existing stream.
+- Java will manage the underlying thread pool for parallel execution.
+
+Example:
+List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+
+int sum = numbers.parallelStream()
+                 .filter(n -> n % 2 == 0)
+                 .mapToInt(Integer::intValue)
+                 .sum();
+
+System.out.println("Sum: " + sum); // Output: Sum of even numbers in parallel
+
+--------------------------------------------------
+Best Practices
+--------------------------------------------------
+- Use parallel streams for large datasets and CPU-bound operations.
+- Avoid stateful lambda expressions and shared mutable state.
+- Performance gains depend on hardware and data size.
+- Not recommended for small datasets due to overhead.
+
+--------------------------------------------------
+Key Methods
+--------------------------------------------------
+- Collection.parallelStream()     -> Creates a parallel stream from a collection
+- Stream.parallel()               -> Converts a sequential stream to parallel
+- Stream.sequential()             -> Converts a parallel stream back to sequential
+
+--------------------------------------------------
+Note
+--------------------------------------------------
+- Benchmark and profile your code before using parallel streams.
+- Parallelism may introduce thread-safety concerns and unpredictable performance if misused.
+
+Java Stream API - IntStream Operations Notes
+
+--------------------------------------------------
+Overview
+--------------------------------------------------
+IntStream is a specialized stream for handling sequences of primitive int values.
+It avoids boxing overhead and provides optimized operations for int primitives.
+
+--------------------------------------------------
+Import Statement
+--------------------------------------------------
+import java.util.stream.IntStream;
+
+--------------------------------------------------
+Creating an IntStream
+--------------------------------------------------
+IntStream intStream = IntStream.of(1, 2, 3, 4, 5);
+
+--------------------------------------------------
+Common Operations
+--------------------------------------------------
+
+1. forEach() - Print all elements
+--------------------------------------------------
+IntStream.of(1, 2, 3, 4, 5)
+         .forEach(System.out::println);
+
+2. sum() - Calculate the sum of elements
+--------------------------------------------------
+int sum = IntStream.of(1, 2, 3, 4, 5).sum();
+System.out.println("Sum: " + sum);
+
+3. average() - Compute the average
+--------------------------------------------------
+double average = IntStream.of(1, 2, 3, 4, 5)
+                          .average()
+                          .orElse(0.0);
+System.out.println("Average: " + average);
+
+4. max() and min() - Find maximum and minimum values
+--------------------------------------------------
+int max = IntStream.of(1, 2, 3, 4, 5)
+                   .max()
+                   .orElseThrow();
+
+int min = IntStream.of(1, 2, 3, 4, 5)
+                   .min()
+                   .orElseThrow();
+
+System.out.println("Max: " + max);
+System.out.println("Min: " + min);
+
+5. reduce() - Custom reduction
+--------------------------------------------------
+int sum = IntStream.of(1, 2, 3, 4, 5)
+                   .reduce(0, Integer::sum);
+System.out.println("Sum: " + sum);
+
+--------------------------------------------------
+Note
+--------------------------------------------------
+- IntStream is part of the java.util.stream package.
+- Useful for performance when dealing with primitive int data.
+- Avoids boxing and unboxing when compared to Stream<Integer>.
+
+
+Java Stream API - Laziness & Non-Reusability Notes
+
+--------------------------------------------------
+ Laziness
+--------------------------------------------------
+- Java Streams are lazy; intermediate operations (like filter, map) are not executed until a terminal operation (like collect, reduce) is invoked.
+- This allows for performance optimizations like short-circuiting and efficient chaining.
+
+Example:
+List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5);
+
+Stream<Integer> stream = numbers.stream()
+    .filter(n -> {
+        System.out.println("Filtering: " + n);
+        return n % 2 == 0;
+    });
+
+System.out.println("No terminal operation yet!");
+
+// Terminal operation triggers execution
+stream.collect(Collectors.toList());
+
+Output:
+No terminal operation yet!
+Filtering: 2
+Filtering: 4
+
+--------------------------------------------------
+ Non-Reusability
+--------------------------------------------------
+- Streams in Java are **non-reusable**.
+- Once a terminal operation is performed, the stream is closed.
+- Attempting to reuse it will result in an IllegalStateException.
+
+Example:
+List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5);
+
+Stream<Integer> stream = numbers.stream();
+
+// First usage - works fine
+stream.filter(n -> n % 2 == 0).collect(Collectors.toList());
+
+// Second usage - throws exception
+stream.filter(n -> n > 2).collect(Collectors.toList());
+
+Output:
+Exception in thread "main" java.lang.IllegalStateException:
+stream has already been operated upon or closed
+
+--------------------------------------------------
+Important Notes:
+--------------------------------------------------
+- Always create a new stream if you need to perform another operation.
+- Stream pipelines are designed for single-use processing.
+
+
+Java Stream API - Stateless vs. Stateful Operations
+
+--------------------------------------------------
+Stateless Operations
+--------------------------------------------------
+- These operations do **not depend on previously processed elements**.
+- They process each element independently.
+- Efficient and parallel-friendly.
+
+✅ Examples:
+- `filter()`
+- `map()`
+- `flatMap()`
+
+Example:
+List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5);
+
+numbers.stream()
+       .filter(n -> n > 2)     // Stateless
+       .forEach(System.out::println);
+
+Output:
+3
+4
+5
+
+--------------------------------------------------
+Stateful Operations
+--------------------------------------------------
+- These operations **require knowledge of the entire data set** or depend on previously seen elements.
+- May need buffering or storing elements internally.
+- Can hinder parallel processing performance.
+
+✅ Examples:
+- `distinct()`
+- `sorted()`
+- `limit()`
+
+Example:
+List<Integer> numbers = Arrays.asList(3, 1, 2, 3, 2, 4);
+
+numbers.stream()
+       .distinct()             // Stateful
+       .forEach(System.out::println);
+
+Output:
+3
+1
+2
+4
+
+--------------------------------------------------
+Key Difference
+--------------------------------------------------
+| Operation Type | Depends on Previous Elements? | Suitable for Parallel? |
+|----------------|-------------------------------|-------------------------|
+| Stateless      | ❌ No                         | ✅ Yes                  |
+| Stateful       | ✅ Yes                        | ⚠️ Possibly (with care) |
+
+--------------------------------------------------
+Tip:
+- Prefer stateless operations in performance-critical or parallel streams.
+
