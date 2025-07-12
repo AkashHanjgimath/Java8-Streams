@@ -1,0 +1,112 @@
+
+Java Stream API - Comprehensive Notes
+
+The Java Stream API, introduced in Java 8, provides a functional and declarative way to process collections and arrays with powerful operations like filtering, mapping, reducing, sorting, and collecting.
+
+--------------------------------------------------
+Stream Creation
+--------------------------------------------------
+1. From Collections:
+   list.stream()             // Sequential stream
+   list.parallelStream()     // Parallel stream
+
+2. From Arrays:
+   Arrays.stream(array)
+
+3. From Range of Numbers:
+   IntStream.range(1, 10)         // 1 to 9
+   LongStream.rangeClosed(1, 10)  // 1 to 10
+
+4. From Suppliers:
+   Stream.generate(() -> Math.random()).limit(5)
+   Stream.iterate(1, n -> n + 1).limit(5)
+
+5. From I/O:
+   BufferedReader br = new BufferedReader(...);
+   Stream<String> lines = br.lines();
+
+--------------------------------------------------
+Intermediate Operations (Lazy Execution)
+--------------------------------------------------
+- filter(Predicate)         -> Filters elements by condition
+- map(Function)             -> Transforms elements
+- flatMap(Function)         -> Flattens nested streams
+- sorted() / sorted(Comparator) -> Sorts elements
+- limit(n) / skip(n)        -> Truncates or skips elements
+- distinct()                -> Removes duplicates
+
+Examples:
+   list.stream().filter(e -> e > 10)
+   list.stream().map(String::toUpperCase)
+   list.stream().flatMap(Collection::stream)
+   list.stream().sorted()
+   list.stream().sorted(Comparator.reverseOrder())
+   list.stream().limit(3)
+   list.stream().skip(2)
+   list.stream().distinct()
+
+--------------------------------------------------
+Terminal Operations
+--------------------------------------------------
+- collect(Collector)        -> Collects elements into collection
+- reduce(identity, BinaryOperator) -> Combines elements
+- count(), max(), min(), average(), sum() -> Aggregation
+- forEach(Consumer)         -> Performs action on each element
+- anyMatch(), allMatch(), noneMatch() -> Matching
+- findFirst(), findAny()    -> Finding elements
+- toArray(), toList()       -> Conversion
+- groupingBy(), partitioningBy() -> Grouping/Partitioning
+- joining(delimiter)        -> Joining strings
+- mapToInt(), mapToLong(), mapToDouble() -> Primitive streams
+
+Examples:
+   list.stream().collect(Collectors.toList())
+   list.stream().reduce(0, Integer::sum)
+   list.stream().count()
+   list.stream().forEach(System.out::println)
+   list.stream().anyMatch(e -> e > 10)
+   list.stream().findFirst()
+   list.stream().collect(Collectors.groupingBy(...))
+   list.stream().collect(Collectors.joining(", "))
+   list.stream().mapToInt(Integer::intValue)
+
+--------------------------------------------------
+Stream Pipeline Structure
+--------------------------------------------------
+- Pipeline = Source + Intermediate Ops + Terminal Op
+- Intermediate operations are lazy – only evaluated at terminal operation.
+- Use parallel() or parallelStream() for parallel execution.
+
+--------------------------------------------------
+Performance Tips
+--------------------------------------------------
+- Streams offer lazy evaluation, short-circuiting, and internal iteration.
+- Use primitive streams to avoid boxing/unboxing.
+- Avoid stateful intermediate ops that depend on shared mutable state.
+- Use parallel streams cautiously – only when performance gain is certain.
+
+--------------------------------------------------
+Exception Handling in Streams
+--------------------------------------------------
+- Streams don’t throw checked exceptions directly.
+- Use try-catch inside lambda when necessary:
+
+  list.stream().map(e -> {
+      try {
+          return riskyOperation(e);
+      } catch (Exception ex) {
+          throw new RuntimeException(ex);
+      }
+  });
+
+--------------------------------------------------
+Common Use Cases
+--------------------------------------------------
+- Filtering & Transformation
+- Aggregation & Summarization
+- Searching & Matching
+- Sorting & Comparing
+- Grouping & Partitioning
+- IO & File Processing
+
+Note: Explore Collectors, StreamSupport, and advanced stream manipulation for more powerful use cases.
